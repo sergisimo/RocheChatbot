@@ -1,0 +1,19 @@
+{
+    "name": "vagrant/api_roche_dev",
+    "type": "project",
+    "license": "MIT License",
+    "authors": [
+        {
+            "name": "Sergi Simo",
+            "email": "ssimo@istypical.com"
+        }
+    ],
+    "require": {
+      "silex/silex": "~2.0"
+    },
+    "autoload": {
+      "psr-4": {
+        "APIRoche\\": "src/"
+      }
+    }
+}
