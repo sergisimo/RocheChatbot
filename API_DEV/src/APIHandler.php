@@ -45,15 +45,24 @@ class APIHandler {
 
         if (true) {
 
-            $keywords = $request->request->get('keywords');
-            $studyType = $request->request->get('study_types');
-            $studyResults = $request->request->get('study_results');
-            $studyStatus = $request->request->get('study_status');
-            $sex = $request->request->get('sex');
-            $countries = $request->request->get('countries');
-            $cities = $request->request->get('location_terms');
-            $conditions = $request->request->get('conditions');
-            $phases = $request->request->get('phases');
+            if ($request->request->has('keywords')) $keywords = $request->request->get('keywords');
+            else $keywords = null;
+            if ($request->request->has('study_types')) $studyType = $request->request->get('study_types');
+            else $studyType = null;
+            if ($request->request->has('study_results')) $studyResults = $request->request->get('study_results');
+            else $studyResults = null;
+            if ($request->request->has('study_status')) $studyStatus = $request->request->get('study_status');
+            else $studyStatus = null;
+            if ($request->request->has('sex')) $sex = $request->request->get('sex');
+            else $sex = null;
+            if ($request->request->has('countries')) $countries = $request->request->get('countries');
+            else $countries = null;
+            if ($request->request->has('location_terms')) $cities = $request->request->get('location_terms');
+            else $cities = null;
+            if ($request->request->has('conditions')) $conditions = $request->request->get('conditions');
+            else $conditions = null;
+            if ($request->request->has('phases')) $phases = $request->request->get('phases');
+            else $phases = null;
 
             $response->setContent(json_encode(DAOStudy::getInstance()->formSearch($keywords, $studyType, $studyResults, $studyStatus, $sex, $countries, $cities, $conditions, $phases)));
             $response->setStatusCode($response::HTTP_OK);

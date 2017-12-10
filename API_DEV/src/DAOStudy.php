@@ -55,55 +55,55 @@ class DAOStudy {
         $count = 0;
 
         //KEYWORDS
-        if (count($keywords) != 0) {
+        if (count($keywords) != 0 && $keywords != null) {
             $idMatrix[$count] = $this->getIDFromKeywords($keywords);
             $count++;
         }
 
         //TYPE
-        if (count($studyType) != 0) {
+        if (count($studyType) != 0 && $studyType != null) {
             $idMatrix[$count] = $this->getIDFromType($studyType);
             $count++;
         }
 
         //RESULTS
-        if ($studyResults != 'none') {
+        if ($studyResults != 'none' && $studyResults != null) {
             $idMatrix[$count] = $this->getIDFromResults($studyResults);
             $count++;
         }
 
         //STATUS
-        if (count($studyStatus) != 0) {
+        if (count($studyStatus) != 0 && $studyStatus != null) {
             $idMatrix[$count] = $this->getIDFromStatus($studyStatus);
             $count++;
         }
 
         //SEX
-        if ($sex != 'Both') {
+        if ($sex != 'Both' && $sex != null) {
             $idMatrix[$count] = $this->getIDFromSex($sex);
             $count++;
         }
 
         //COUNTRIES
-        if (count($countries) != 0) {
+        if (count($countries) != 0 && $countries != null) {
             $idMatrix[$count] = $this->getIDFromCountries($countries);
             $count++;
         }
 
         //CITIES
-        if (count($cities) != 0) {
+        if (count($cities) != 0 && $cities != null) {
             $idMatrix[$count] = $this->getIDFromCities($cities);
             $count++;
         }
 
         //CONDITIONS
-        if (count($conditions) != 0) {
+        if (count($conditions) != 0 && $conditions != null) {
             $idMatrix[$count] = $this->getIDFromConditions($conditions);
             $count++;
         }
 
         //PHASES
-        if (count($phases) != 0) $idMatrix[$count] = $this->getIDFromPhases($phases);
+        if (count($phases) != 0 && $phases != null) $idMatrix[$count] = $this->getIDFromPhases($phases);
 
         //return $idMatrix;
         // GET INFO FROM SELECTED ID's
