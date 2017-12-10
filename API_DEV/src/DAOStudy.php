@@ -5,29 +5,30 @@ namespace APIRoche;
 use PDO;
 
 class DAOStudy {
+
     /* ************* CONSTANTS ****************/
-    private const PGSQL_HOST = 'aact-prod.cr4nrslb1lw7.us-east-1.rds.amazonaws.com';
-    private const DATABASE_NAME = 'aact';
-    private const USER_NAME = 'aact';
-    private const USER_PSWD = 'aact';
+    const PGSQL_HOST = 'aact-prod.cr4nrslb1lw7.us-east-1.rds.amazonaws.com';
+    const DATABASE_NAME = 'aact';
+    const USER_NAME = 'aact';
+    const USER_PSWD = 'aact';
 
     // FORM SEARCH ID's STATEMENTS
-    private const SELECT_ID_FROM_KEYWORDS = 'SELECT DISTINCT keywords.nct_id FROM keywords WHERE ';
-    private const SELECT_ID_FROM_NO_RESULTS = 'SELECT DISTINCT studies.nct_id FROM studies WHERE studies.nct_id NOT IN (SELECT DISTINCT result_groups.nct_id FROM result_groups)';
-    private const SELECT_ID_FROM_RESULTS = 'SELECT DISTINCT result_groups.nct_id FROM result_groups';
-    private const SELECT_ID_FROM_COUNTRIES = 'SELECT DISTINCT countries.nct_id FROM countries WHERE ';
-    private const SELECT_ID_FROM_CITIES = 'SELECT DISTINCT facilities.nct_id FROM facilities WHERE ';
-    private const SELECT_ID_FROM_CONDITIONS = 'SELECT DISTINCT conditions.nct_id FROM conditions WHERE ';
-    private const SELECT_ID_FROM_PHASE = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
-    private const SELECT_ID_FROM_STATUS = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
-    private const SELECT_ID_FROM_ELIGIBILITIES = 'SELECT DISTINCT eligibilities.nct_id FROM eligibilities WHERE eligibilities.gender = :gender';
-    private const SELECT_ID_FROM_TYPE = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
+    const SELECT_ID_FROM_KEYWORDS = 'SELECT DISTINCT keywords.nct_id FROM keywords WHERE ';
+    const SELECT_ID_FROM_NO_RESULTS = 'SELECT DISTINCT studies.nct_id FROM studies WHERE studies.nct_id NOT IN (SELECT DISTINCT result_groups.nct_id FROM result_groups)';
+    const SELECT_ID_FROM_RESULTS = 'SELECT DISTINCT result_groups.nct_id FROM result_groups';
+    const SELECT_ID_FROM_COUNTRIES = 'SELECT DISTINCT countries.nct_id FROM countries WHERE ';
+    const SELECT_ID_FROM_CITIES = 'SELECT DISTINCT facilities.nct_id FROM facilities WHERE ';
+    const SELECT_ID_FROM_CONDITIONS = 'SELECT DISTINCT conditions.nct_id FROM conditions WHERE ';
+    const SELECT_ID_FROM_PHASE = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
+    const SELECT_ID_FROM_STATUS = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
+    const SELECT_ID_FROM_ELIGIBILITIES = 'SELECT DISTINCT eligibilities.nct_id FROM eligibilities WHERE eligibilities.gender = :gender';
+    const SELECT_ID_FROM_TYPE = 'SELECT DISTINCT studies.nct_id FROM studies WHERE ';
 
     // FORM GET INFORMATION STATEMENTS
-    private const SELECT_INFO_FROM_STUDIES = 'SELECT brief_title, overall_status FROM studies WHERE studies.nct_id = :id';
-    private const SELECT_INFO_FROM_CONDITIONS = 'SELECT name FROM conditions WHERE conditions.nct_id = :id';
-    private const SELECT_INFO_FROM_FACILITES = 'SELECT city, state, country FROM facilities WHERE facilities.nct_id = :id';
-    private const SELECT_INFO_FROM_INTERVENTION = 'SELECT name FROM interventions WHERE interventions.nct_id = :id';
+    const SELECT_INFO_FROM_STUDIES = 'SELECT brief_title, overall_status FROM studies WHERE studies.nct_id = :id';
+    const SELECT_INFO_FROM_CONDITIONS = 'SELECT name FROM conditions WHERE conditions.nct_id = :id';
+    const SELECT_INFO_FROM_FACILITES = 'SELECT city, state, country FROM facilities WHERE facilities.nct_id = :id';
+    const SELECT_INFO_FROM_INTERVENTION = 'SELECT name FROM interventions WHERE interventions.nct_id = :id';
 
     /* ************* ATTRIBUTES ****************/
     private static $instance;
