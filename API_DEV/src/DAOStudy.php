@@ -30,11 +30,15 @@ class DAOStudy {
     const SELECT_INFO_FROM_FACILITES = 'SELECT city, state, country FROM facilities WHERE facilities.nct_id = :id';
     const SELECT_INFO_FROM_INTERVENTION = 'SELECT name FROM interventions WHERE interventions.nct_id = :id';
 
+    //BOT STATEMENTS
+    const SELECT_DISEASE_STATUS_PERIOD_COUNTRY = 'SELECT studies.start_date FROM studies, countries, conditions WHERE studies.nct_id = countries.nct_id AND studies.nct_id = conditions.nct_id AND countries.name LIKE :country AND conditions.name LIKE :condition';
+
     /* ************* ATTRIBUTES ****************/
     private static $instance;
     private $dbConnection;
     private $searchIDFormStatement;
     private $searchFormInfoStatement;
+    private $botStatement;
 
     /* ************* CONSTRUCTOR ****************/
     private function __construct() {
@@ -111,6 +115,27 @@ class DAOStudy {
         $identifiers = $this->intersectIDArrays($idMatrix);
 
         return $this->getResultsInfo($identifiers);
+    }
+
+    public function diseaseStatusPeriodCountry($country, $condition) {
+
+        $this->botStatement = $this->dbConnection->prepare(DAOStudy::SELECT_DISEASE_STATUS_PERIOD_COUNTRY);
+        $country = '%' . $country . '%';
+        $condition = '%' . $condition . '%';
+        $this->botStatement->bindParam(':country', $country, PDO::PARAM_STR);
+        $this->botStatement->bindParam(':condition', $condition, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+
+        $values = array();
+        foreach ($results as $result) {
+
+            $year = idate('Y', strtotime($result['start_date']));
+            if (array_key_exists($year, $values)) $values[$year]++;
+            else $values[$year] = 1;
+        }
+
+        return $values;
     }
 
     /* ************* PRIVATE METHODS ****************/
