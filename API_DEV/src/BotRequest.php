@@ -68,6 +68,7 @@ class BotRequest {
             switch ($botResponse->result->metadata->intentName) {
 
                 case 'example_questions':
+                    //$response = DAOStudy::getInstance()->generateDiseaseList();
                     $response = $this->exampleQuestions($botResponse);
                     break;
 
@@ -75,6 +76,17 @@ class BotRequest {
                     $response = $this->diseaseStatusPeriodCountry($botResponse, $response);
                     break;
 
+                case 'status_disease_all_phases':
+                    $response = $this->statusDiseaseAllPhases($botResponse, $response);
+                    break;
+
+                case 'comparison_phaseX_phaseY_disease_regions_country':
+                    $response = $this->comparisonPhasesDiseaseRegionsCountry($botResponse, $response);
+                    break;
+
+                default:
+                    $response = $this->notUnderstandResponse($response);
+                    break;
             }
         }
 
@@ -94,6 +106,7 @@ class BotRequest {
         $response['bot_answer'] = $botResponse->result->fulfillment->messages[0]->speech;
         $response['Response-Type'] = 'list';
         $response['data_source'] = $botResponse->result->fulfillment->messages[1]->payload->data_source;
+        $response['title'] = 'Example Questions';
 
         return $response;
     }
@@ -101,9 +114,32 @@ class BotRequest {
     private function diseaseStatusPeriodCountry($botResponse, $response) {
 
         $response['bot_answer'] = $botResponse->result->fulfillment->messages[0]->speech;
+        $response['title'] = 'Number of Studies';
         $response['Response-Type'] = 'chart';
         $response['chart_type'] = array('line');
         $response['data_source'] = DAOStudy::getInstance()->diseaseStatusPeriodCountry($botResponse->result->parameters->{'geo-country'}, $botResponse->result->parameters->Disease);
+
+        return $response;
+    }
+
+    private function statusDiseaseAllPhases($botResponse, $response) {
+
+        $response['bot_answer'] = $botResponse->result->fulfillment->messages[0]->speech;
+        $response['title'] = 'Number of Studies per Phase';
+        $response['Response-Type'] = 'chart';
+        $response['chart_type'] = array('bar', 'pie');
+        $response['data_source'] = DAOStudy::getInstance()->statusDiseaseAllPhases($botResponse->result->parameters->Study_Status, $botResponse->result->parameters->Disease);
+
+        return $response;
+    }
+
+    private function comparisonPhasesDiseaseRegionsCountry($botResponse, $response) {
+
+        $response['bot_answer'] = $botResponse->result->fulfillment->messages[0]->speech;
+        $response['title'] = 'Comparison between two Phases';
+        $response['Response-Type'] = 'chart';
+        $response['chart_type'] = array('bar', 'pie');
+        $response['data_source'] = DAOStudy::getInstance()->comparisonPhasesDiseaseRegionsCountry($botResponse->result->parameters->Disease, $botResponse->result->parameters->{'geo-country'}, $botResponse->result->parameters->number, $botResponse->result->parameters->number1);
 
         return $response;
     }

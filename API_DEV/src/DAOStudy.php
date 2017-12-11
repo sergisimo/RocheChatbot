@@ -27,11 +27,14 @@ class DAOStudy {
     // FORM GET INFORMATION STATEMENTS
     const SELECT_INFO_FROM_STUDIES = 'SELECT brief_title, overall_status FROM studies WHERE studies.nct_id = :id';
     const SELECT_INFO_FROM_CONDITIONS = 'SELECT name FROM conditions WHERE conditions.nct_id = :id';
-    const SELECT_INFO_FROM_FACILITES = 'SELECT city, state, country FROM facilities WHERE facilities.nct_id = :id';
+    const SELECT_INFO_FROM_FACILITIES = 'SELECT city, state, country FROM facilities WHERE facilities.nct_id = :id';
     const SELECT_INFO_FROM_INTERVENTION = 'SELECT name FROM interventions WHERE interventions.nct_id = :id';
 
     //BOT STATEMENTS
     const SELECT_DISEASE_STATUS_PERIOD_COUNTRY = 'SELECT studies.start_date FROM studies, countries, conditions WHERE studies.nct_id = countries.nct_id AND studies.nct_id = conditions.nct_id AND countries.name LIKE :country AND conditions.name LIKE :condition';
+    const SELECT_DISEASE_STATUS_ALL_PHASES = 'SELECT studies.nct_id FROM studies, conditions WHERE studies.nct_id = conditions.nct_id AND conditions.name LIKE :condition AND studies.phase LIKE :phase AND UPPER(studies.overall_status) LIKE UPPER(:status)';
+    const SELECT_COMPARISON_PHASES_DISEASE_COUNTRY = 'SELECT studies.nct_id FROM studies, conditions, countries WHERE studies.nct_id = countries.nct_id AND studies.nct_id = conditions.nct_id AND conditions.name LIKE :condition AND studies.phase LIKE :phase AND UPPER(countries.name) LIKE UPPER(:country)';
+    //const SELECT_ALL_DISEASES = 'SELECT DISTINCT name FROM conditions LIMIT 30000';
 
     /* ************* ATTRIBUTES ****************/
     private static $instance;
@@ -128,15 +131,105 @@ class DAOStudy {
         $results = $this->botStatement->fetchAll();
 
         $values = array();
+        $min = 0;
+        $max = 0;
         foreach ($results as $result) {
 
             $year = idate('Y', strtotime($result['start_date']));
             if (array_key_exists($year, $values)) $values[$year]++;
             else $values[$year] = 1;
+
+            if ($max == 0) $min = $year;
+            if ($year > $max) $max = $year;
+            if ($year < $min) $min = $year;
         }
+
+        for ($i = $min; $i <= $max; $i++)
+            if (!array_key_exists($i, $values)) $values[$i] = 0;
 
         return $values;
     }
+
+    public function statusDiseaseAllPhases($status, $condition) {
+
+        $this->botStatement = $this->dbConnection->prepare(DAOStudy::SELECT_DISEASE_STATUS_ALL_PHASES);
+        $status = '%' . $status . '%';
+        $condition = '%' . $condition . '%';
+        $phase = '%Early Phase 1%';
+        $this->botStatement->bindParam(':condition', $condition, PDO::PARAM_STR);
+        $this->botStatement->bindParam(':status', $status, PDO::PARAM_STR);
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values = array('Early Phase 1' => count($results));
+
+        $phase = '%Phase 1%';
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values['Phase 1'] = count($results);
+
+        $phase = '%Phase 2%';
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values['Phase 2'] = count($results);
+
+        $phase = '%Phase 3%';
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values['Phase 3'] = count($results);
+
+        $phase = '%Phase 4%';
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values['Phase 4'] = count($results);
+
+        return $values;
+    }
+
+    public function comparisonPhasesDiseaseRegionsCountry($condition, $country, $phase1, $phase2) {
+
+        $this->botStatement = $this->dbConnection->prepare(DAOStudy::SELECT_COMPARISON_PHASES_DISEASE_COUNTRY);
+        $country = '%' . $country . '%';
+        $condition = '%' . $condition . '%';
+        $phase = '%Phase ' . $phase1 . '%';
+        $this->botStatement->bindParam(':condition', $condition, PDO::PARAM_STR);
+        $this->botStatement->bindParam(':country', $country, PDO::PARAM_STR);
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values = array('Phase ' . $phase1 => count($results));
+
+        $phase = '%Phase ' . $phase2 . '%';
+        $this->botStatement->bindParam(':phase', $phase, PDO::PARAM_STR);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+        $values['Phase ' . $phase2] = count($results);
+
+        return $values;
+    }
+
+    /*public function generateDiseaseList() {
+
+        $this->botStatement = $this->dbConnection->prepare(DAOStudy::SELECT_ALL_DISEASES);
+        $this->botStatement->execute();
+        $results = $this->botStatement->fetchAll();
+
+        $values = array();
+
+        foreach ($results as $result) {
+
+            if (!strpos($result['name'], '(') && !strpos($result['name'], ')')) {
+                $disease = array( 'value' => $result['name'], 'synonyms' => array($result['name']));
+                array_push($values, $disease);
+            }
+        }
+
+       return $values;
+    }*/
 
     /* ************* PRIVATE METHODS ****************/
     private function getResultsInfo($identifiers) {
@@ -171,7 +264,7 @@ class DAOStudy {
             foreach ($infos as $info) array_push($interventions, $info['name']);
             $study['interventions'] = $interventions;
 
-            $this->searchFormInfoStatement = $this->dbConnection->prepare(DAOStudy::SELECT_INFO_FROM_FACILITES);
+            $this->searchFormInfoStatement = $this->dbConnection->prepare(DAOStudy::SELECT_INFO_FROM_FACILITIES);
             $this->searchFormInfoStatement->bindParam(':id', $identifier, PDO::PARAM_STR);
             $this->searchFormInfoStatement->execute();
             $infos = $this->searchFormInfoStatement->fetchAll();
